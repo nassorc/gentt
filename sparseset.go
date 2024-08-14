@@ -6,29 +6,29 @@ import (
 )
 
 const (
-  PAGE_SIZE = 10
-  MAX_PAGES = 1000
+	PAGE_SIZE = 10
+	MAX_PAGES = 1000
 )
 
 type Page [PAGE_SIZE]int
 type Pages []*Page
 
 type Store struct {
-	size           int
-	capacity       int
-  // Dense is a slice of type reflect.Value that stores the data
-	Dense          reflect.Value
-  Sparse         Pages
-	ReverseLookup  []EntityId
+	size     int
+	capacity int
+	// Dense is a slice of type reflect.Value that stores the data
+	Dense         reflect.Value
+	Sparse        Pages
+	ReverseLookup []EntityId
 }
 
 func NewStore(t reflect.Type, capacity int) *Store {
 	return &Store{
-		size:           0,
-		capacity:       capacity,
-		Dense:          reflect.MakeSlice(reflect.SliceOf(t), 0, 10),
-		ReverseLookup:  make([]EntityId, 0, 10),
-    Sparse: make(Pages, 0, 0),
+		size:          0,
+		capacity:      capacity,
+		Dense:         reflect.MakeSlice(reflect.SliceOf(t), 0, 10),
+		ReverseLookup: make([]EntityId, 0, 10),
+		Sparse:        make(Pages, 0, 0),
 	}
 }
 
@@ -37,38 +37,38 @@ func (s *Store) Size() EntityId {
 }
 
 func (s *Store) SetSparseIdx(id EntityId, idx int) {
-  page := id / PAGE_SIZE
-  dataIdx := id % PAGE_SIZE
+	page := id / PAGE_SIZE
+	dataIdx := id % PAGE_SIZE
 
-  if page >= len(s.Sparse) {
-    s.Sparse = slices.Grow(s.Sparse, page)
-    s.Sparse = append(s.Sparse, new(Page))
-  }
+	if page >= len(s.Sparse) {
+		s.Sparse = slices.Grow(s.Sparse, page)
+		s.Sparse = append(s.Sparse, new(Page))
+	}
 
-  s.Sparse[page][dataIdx] = idx
+	s.Sparse[page][dataIdx] = idx
 }
 
 func (s Store) GetDataIdx(id EntityId) (int, bool) {
-  page := id / PAGE_SIZE
-  dataIdx := id % PAGE_SIZE
+	page := id / PAGE_SIZE
+	dataIdx := id % PAGE_SIZE
 
-  if page >= len(s.Sparse) {
-    return 0, false
-  }
+	if page >= len(s.Sparse) {
+		return 0, false
+	}
 
-  return s.Sparse[page][dataIdx], true
+	return s.Sparse[page][dataIdx], true
 }
 
 func (s *Store) Has(id EntityId) bool {
-  idx, ok := s.GetDataIdx(id)
+	idx, ok := s.GetDataIdx(id)
 
-  if !ok {
-    return false
-  }
+	if !ok {
+		return false
+	}
 
-  if s.ReverseLookup[idx] == id && idx < s.Size() {
-    return true
-  }
+	if s.ReverseLookup[idx] == id && idx < s.Size() {
+		return true
+	}
 
 	return false
 }
@@ -82,7 +82,7 @@ func (s *Store) Get(id EntityId) (reflect.Value, bool) {
 		return reflect.Value{}, false
 	}
 
-  idx, _ := s.GetDataIdx(id)
+	idx, _ := s.GetDataIdx(id)
 
 	return s.Dense.Index(idx), true
 }
@@ -93,18 +93,18 @@ func (s *Store) Insert(id EntityId, value reflect.Value) {
 	}
 
 	if s.Has(id) {
-    idx, _ := s.GetDataIdx(id)
+		idx, _ := s.GetDataIdx(id)
 		s.Dense.Index(idx).Set(value)
 
 	} else {
-    idx := s.Size()
+		idx := s.Size()
 
-    s.SetSparseIdx(id, idx)
+		s.SetSparseIdx(id, idx)
 
-    s.Dense = reflect.Append(s.Dense, value)
-    s.ReverseLookup = append(s.ReverseLookup, id)
+		s.Dense = reflect.Append(s.Dense, value)
+		s.ReverseLookup = append(s.ReverseLookup, id)
 
-    s.size += 1
+		s.size += 1
 	}
 }
 
@@ -113,7 +113,7 @@ func (s *Store) Remove(id EntityId) bool {
 		return false
 	}
 
-  idx, _ := s.GetDataIdx(id)
+	idx, _ := s.GetDataIdx(id)
 	lastIdx := s.Size() - 1
 	lastOwnerId := s.ReverseLookup[lastIdx]
 
@@ -121,10 +121,9 @@ func (s *Store) Remove(id EntityId) bool {
 	s.Dense.Index(idx).Set(s.Dense.Index(lastIdx))
 
 	// update data
-  s.SetSparseIdx(lastOwnerId, idx)
-  s.ReverseLookup[idx] = lastOwnerId
+	s.SetSparseIdx(lastOwnerId, idx)
+	s.ReverseLookup[idx] = lastOwnerId
 	s.size -= 1
 
 	return true
 }
-
