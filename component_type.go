@@ -78,7 +78,7 @@ func (c ComponentType[T]) Get(world *World, entity EntityId) *T {
 }
 
 func (c ComponentType[T]) Remove(world *World, entity EntityId) {
-	world.Remove(entity, Velocity.RType())
+	world.Remove(entity, c.rType)
 }
 
 func (s ComponentType[T]) RType() reflect.Type {
