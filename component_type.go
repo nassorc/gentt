@@ -21,9 +21,8 @@ func (c ComponentType[T]) Add(world *World, entity EntityId, val T) {
 }
 
 func (c ComponentType[T]) All(world *World) []EntityId {
-  store := world.GetStore(c.rType)
-
-  return store.Sparse[:store.Size()]
+  store := world.stores[world.componentTypeToStore[c.rType]]
+  return store.ReverseLookup[:store.Size()]
 }
 
 func (c ComponentType[T]) Create(world *World, entity EntityId) {
@@ -68,27 +67,14 @@ func (c ComponentType[T]) Each(world *World, action func(entity EntityId, data *
 }
 
 func (c ComponentType[T]) First(world *World) EntityId {
-  // return world.GetStore(c.rType).ReverseLookup[0]
   return world.stores[world.componentTypeToStore[c.rType]].ReverseLookup[0]
 }
 
 func (c ComponentType[T]) Get(world *World, entity EntityId) *T {
   store := world.stores[world.componentTypeToStore[c.rType]]
-  // data := store.Data.Index(store.ReverseLookup[entity]).Addr().Interface().(*T)
   data, _ := store.Get(entity)
 
-  // store.Data.Index(store.idToDataLookup[entity])
   return data.Addr().Interface().(*T)
-  // data := world.stores[world.componentTypeToStore[c.rType]].Index(entity)
-  // return data.(*T)
-  // var data *T
-  // data := &world.stores[world.componentTypeToStore[c.rType]].Dense[entity]
-  //
-  // return (*data).(T), false
-
-  // val, ok := world.Get(c.rType, entity)
-  // // fmt.Println("RECEIVED", *val)
-  // return (val).(T), ok
 }
 
 func (c ComponentType[T]) Remove(world *World, entity EntityId) {
@@ -100,13 +86,7 @@ func (s ComponentType[T]) RType() reflect.Type {
 }
 
 func (s ComponentType[T]) SetData(world *World, entity EntityId, val T)  {
-  // data := &world.stores[world.componentTypeToStore[s.rType]].Dense[0]
-  // *data = any(val)
   world.SetData(entity, val)
-
-  // data := v.()
-  // *data = val
-  // world.SetData(entity, val)
 }
 
 func (s ComponentType[T]) Zero() interface{} {

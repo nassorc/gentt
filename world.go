@@ -38,7 +38,6 @@ func NewWorld() *World {
   }
 
   return &World{
-    // stores: make(map[reflect.Type]*SparseSet[any]),
     componentTypeToStore: make(map[reflect.Type]int),
     entityPool: entityPool,
     entitySignatures: entitySignatures,
@@ -78,12 +77,6 @@ func (w *World) issueId() EntityId {
 
 func (w *World) SetData(entity EntityId, component interface{}) {
   t := reflect.TypeOf(component)
-  // val := reflect.ValueOf(component)
-
-  // if t.Kind() != reflect.Pointer {
-  //   fmt.Printf("%v is a pointer?\n", t)
-  //   t = reflect.Indirect(reflect.ValueOf(component)).Type()
-  // }
 
   if !w.HasStore(t) { 
     fmt.Println("world.SetData does not have store", t)
@@ -99,11 +92,7 @@ func (w *World) SetData(entity EntityId, component interface{}) {
 }
 
 func (w *World) Create(components ...IComponentType) EntityId {
-  // do the same thing that create does
-  // And, we nNewSparseSeteed to create a zero value
   id := w.issueId()
-
-  fmt.Println("created entity", id)
 
   for _, component := range components {
     t := component.RType()
@@ -124,19 +113,6 @@ func (w *World) Create(components ...IComponentType) EntityId {
   w.entitySignatures[id].Set(BITSET_SIZE-1)
   return id
 }
-
-// func (w *World) Create(components ...interface{}) EntityId {
-//   // Registering component stores are reactive. Instead of having the user register
-//   // all the components upfront, we create the store while the entity is being
-//   // created.
-//   id := w.issueId()
-//   for _, component := range components {
-//     w.SetData(id, component)
-//   }
-//
-//   w.entitySignatures[id].Set(BITSET_SIZE-1) // indicates entity is valid
-//   return id
-// }
 
 func (w *World) Remove(entity EntityId, component reflect.Type) {
   idx, ok := w.componentTypeToStore[component]
@@ -182,7 +158,6 @@ func (w *World) Query(components ...IComponentType) []EntityId {
     t := component.RType()
     idx := w.componentTypeToStore[t]
     store := w.stores[idx]
-    // stores = append(stores, w.stores[w.componentTypeToStore[t]])
 
     if minStore == nil {
       minStore = store
@@ -193,7 +168,7 @@ func (w *World) Query(components ...IComponentType) []EntityId {
     qSig.Set(idx)
   }
   
-  for _, entity := range minStore.Sparse[:minStore.Size()] {
+  for _, entity := range minStore.ReverseLookup[:minStore.Size()] {
     eSig := w.entitySignatures[entity]
 
     if (eSig.Int() & qSig.Int()) == qSig.Int() {
