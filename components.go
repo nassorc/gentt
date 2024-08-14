@@ -1,4 +1,4 @@
-package main
+package ecs
 
 func Vec2Add(a, b Vec2) Vec2 {
 	return Vec2{a.X + b.X, a.Y + b.Y}

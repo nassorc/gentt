@@ -1,4 +1,4 @@
-module gentt
+module gent
 
 go 1.22.4
 
