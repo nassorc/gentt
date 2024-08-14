@@ -25,7 +25,7 @@ type World struct {
 	// 1 = valid, set when creating entity
 	// 0 = not valid, reset when destroying entity
 	entitySignatures []bitset.Bitset
-  systems   []func(*World) 
+	systems          []func(*World)
 }
 
 func NewWorld() *World {
@@ -49,13 +49,13 @@ func (w World) IsValid(entity EntityId) bool {
 }
 
 func (w *World) RegisterSystem(system func(*World)) {
-  w.systems = append(w.systems, system)
+	w.systems = append(w.systems, system)
 }
 
 func (w *World) Tick() {
-  for _, system := range w.systems {
-    system(w)
-  }
+	for _, system := range w.systems {
+		system(w)
+	}
 }
 
 func (w *World) Get(store reflect.Type, entity EntityId) (any, bool) {
