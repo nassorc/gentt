@@ -25,6 +25,7 @@ type World struct {
 	// 1 = valid, set when creating entity
 	// 0 = not valid, reset when destroying entity
 	entitySignatures []bitset.Bitset
+  systems   []func(*World) 
 }
 
 func NewWorld() *World {
@@ -45,6 +46,16 @@ func NewWorld() *World {
 
 func (w World) IsValid(entity EntityId) bool {
 	return w.entitySignatures[entity].Test(BITSET_SIZE - 1)
+}
+
+func (w *World) RegisterSystem(system func(*World)) {
+  w.systems = append(w.systems, system)
+}
+
+func (w *World) Tick() {
+  for _, system := range w.systems {
+    system(w)
+  }
 }
 
 func (w *World) Get(store reflect.Type, entity EntityId) (any, bool) {
