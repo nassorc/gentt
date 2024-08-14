@@ -8,7 +8,7 @@ import (
 	"github.com/nassorc/go-codebase/src/ringbuffer"
 )
 
-const WORLD_SIZE = 200
+const WORLD_SIZE = 10000
 const BITSET_SIZE = 8
 
 type IComponentType interface {
@@ -25,7 +25,7 @@ type World struct {
 	// 1 = valid, set when creating entity
 	// 0 = not valid, reset when destroying entity
 	entitySignatures []bitset.Bitset
-	systems          []func(*World)
+  systems   []func(*World) 
 }
 
 func NewWorld() *World {
@@ -49,18 +49,17 @@ func (w World) IsValid(entity EntityId) bool {
 }
 
 func (w *World) RegisterSystem(system func(*World)) {
-	w.systems = append(w.systems, system)
+  w.systems = append(w.systems, system)
 }
 
 func (w *World) Tick() {
-	for _, system := range w.systems {
-		system(w)
-	}
+  for _, system := range w.systems {
+    system(w)
+  }
 }
 
 func (w *World) Get(store reflect.Type, entity EntityId) (any, bool) {
 	data, ok := w.stores[w.componentTypeToStore[store]].Get(entity)
-	fmt.Println("GOT", data)
 	return data, ok
 }
 
@@ -89,10 +88,10 @@ func (w *World) SetData(entity EntityId, component interface{}) {
 	t := reflect.TypeOf(component)
 
 	if !w.HasStore(t) {
-		fmt.Println("world.SetData does not have store", t)
 		// create store
+    fmt.Println("NO STORE, CREATING")
 		idx := len(w.stores)
-		w.stores = append(w.stores, NewStore(t, 100))
+		w.stores = append(w.stores, NewStore(t))
 		w.componentTypeToStore[t] = idx
 	}
 
@@ -108,9 +107,10 @@ func (w *World) Create(components ...IComponentType) EntityId {
 		t := component.RType()
 
 		if !w.HasStore(t) {
+      // fmt.Println("NO STORE")
 			// create store
 			idx := len(w.stores)
-			w.stores = append(w.stores, NewStore(component.RType(), 100))
+			w.stores = append(w.stores, NewStore(component.RType()))
 			w.componentTypeToStore[t] = idx
 		}
 

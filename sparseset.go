@@ -15,20 +15,20 @@ type Pages []*Page
 
 type Store struct {
 	size     int
-	capacity int
+	// capacity int
 	// Dense is a slice of type reflect.Value that stores the data
 	Dense         reflect.Value
 	Sparse        Pages
 	ReverseLookup []EntityId
 }
 
-func NewStore(t reflect.Type, capacity int) *Store {
+func NewStore(t reflect.Type) *Store {
 	return &Store{
 		size:          0,
-		capacity:      capacity,
-		Dense:         reflect.MakeSlice(reflect.SliceOf(t), 0, 10),
-		ReverseLookup: make([]EntityId, 0, 10),
-		Sparse:        make(Pages, 0, 0),
+		// capacity:      capacity,
+		Dense:         reflect.MakeSlice(reflect.SliceOf(t), 0, 100),
+		ReverseLookup: make([]EntityId, 0, 100),
+		Sparse:        make(Pages, 0, 100),
 	}
 }
 
@@ -88,9 +88,9 @@ func (s *Store) Get(id EntityId) (reflect.Value, bool) {
 }
 
 func (s *Store) Insert(id EntityId, value reflect.Value) {
-	if (s.Size() + 1) >= s.capacity {
-		panic("Full component store.")
-	}
+	// if (s.Size() + 1) >= s.capacity {
+	// 	panic("Full component store.")
+	// }
 
 	if s.Has(id) {
 		idx, _ := s.GetDataIdx(id)

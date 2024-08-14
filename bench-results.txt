@@ -1,0 +1,26 @@
+goos: linux
+goarch: amd64
+pkg: gent
+cpu: AMD Ryzen 5 2600 Six-Core Processor            
+Benchmark_CreateEntity-12       	     100	   2504531 ns/op	 4800368 B/op	  100006 allocs/op
+Benchmark_SystemIteration-12    	     100	    952142 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	gent	1.379s
+
+goos: linux
+goarch: amd64
+pkg: gent
+cpu: AMD Ryzen 5 2600 Six-Core Processor            
+Benchmark_CreateEntity-12       	    1000	    245444 ns/op	  480259 B/op	   10006 allocs/op
+Benchmark_SystemIteration-12    	    1000	   1040909 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	gent	2.359s
+
+goos: linux
+goarch: amd64
+pkg: gent
+cpu: AMD Ryzen 5 2600 Six-Core Processor            
+Benchmark_CreateEntity-12       	   10000	     23921 ns/op	   48342 B/op	    1006 allocs/op
+Benchmark_SystemIteration-12    	   10000	   1045292 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	gent	11.688s
