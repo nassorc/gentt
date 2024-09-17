@@ -66,8 +66,19 @@ func (c ComponentType[T]) Each(world *World, action func(entity EntityId, data *
 	}
 }
 
-func (c ComponentType[T]) First(world *World) EntityId {
-	return world.stores[world.componentTypeToStore[c.rType]].ReverseLookup[0]
+func (c ComponentType[T]) First(world *World) (EntityId, bool) {
+  store := world.stores[world.componentTypeToStore[c.rType]]
+  if store.Size() == 0 {
+    return 0, false
+  }
+
+  entity := store.ReverseLookup[0]
+
+  if store.Has(entity) {
+    return entity, true
+  }
+
+  return 0, false
 }
 
 func (c ComponentType[T]) Get(world *World, entity EntityId) *T {

@@ -2,56 +2,53 @@ package main
 
 import (
 	"fmt"
-  ecs "gent"
+  "gentt"
 )
+
+type PositionData struct { X, Y int }
+
+type VelocityData struct { X, Y int }
 
 var (
-  windowWidth float32 = 800
-  windowHeight float32 = 360
-  rows = 8
-  cols = 14
+  Position = gentt.CreateComponent[PositionData]()
+  Velocity = gentt.CreateComponent[VelocityData]()
 )
 
-type VelocityData struct {
-  X, Y int
+type QueryResult struct {
+  Result []int
 }
 
-type SpriteData struct {}
-type PosData struct {}
-
-var Velocity = ecs.CreateComponent[VelocityData]()
-var Sprite = ecs.CreateComponent[SpriteData]()
-var Position = ecs.CreateComponent[PosData]()
-
-type Val struct { 
-  val int
+func (res QueryResult) Each() {
 }
 
 func main() {
-  world := ecs.NewWorld()
-  world.Create(Velocity)
-  world.Create(Velocity)
-  world.Create(Velocity, Sprite)
+  world := gentt.NewWorld()
 
-  Velocity.SetData(world, 1, VelocityData{5, 10})
-  Velocity.SetData(world, 1, VelocityData{100, 100})
+  e1 := world.Create(Position, Velocity)
+  Position.SetData(world, e1, PositionData{10, 20})
+  Velocity.SetData(world, e1, VelocityData{1, 2})
 
-  // Velocity.SetData(world, 1, VelocityData{20, 21})
-  // p1 := Velocity.Get(world, 1)
-  //
-  // p1.X /= 2
-  // p1.Y /= 2
+  query := world.Query(Position, Velocity)
 
-  Velocity.Each(world, func(entity int, data *VelocityData) {
-    // data.X -= 1
-    fmt.Println("entity, data", entity, data)
+  for i := 0; i < len(query); i++ {
+    pos := Position.Get(world, query[i]) 
+    vel := Velocity.Get(world, query[i]) 
+
+    pos.X += vel.X
+    pos.Y += vel.Y
+  }
+
+  if entity, ok := Position.First(world); ok {
+    fmt.Println("Has first", entity)
+  } else {
+    fmt.Println("No first", entity)
+  }
+
+  fmt.Println(Position.All(world))
+
+  Position.Each(world, func(entity int, data *PositionData) {
+    Position.Remove(world, entity)
   })
 
-  fmt.Println("first", Velocity.First(world))
-
-  for _, entity := range world.Query(Velocity, Sprite) {
-    vel := Velocity.Get(world, entity)
-    fmt.Println("query velocity and sprite", entity, vel)
-  }
+  fmt.Println(Position.All(world))
 }
-
