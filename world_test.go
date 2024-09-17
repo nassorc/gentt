@@ -15,6 +15,48 @@ var Position = CreateComponent[PositionData]()
 var Velocity = CreateComponent[VelocityData]()
 var Config = CreateComponent[ConfigData]()
 
+func Test_EcsSystems(t *testing.T) {
+  world := NewWorld()
+  tickCount := 0
+   
+  world.RegisterSystem(func(world *World) {
+    tickCount += 1
+  })
+
+  world.Tick()
+  if tickCount != 1 {
+    t.Errorf("Expected %v, Got %v", 1, tickCount)
+  }
+
+  world.Tick()
+  world.Tick()
+  if tickCount != 3 {
+    t.Errorf("Expected %v, Got %v", 3, tickCount)
+  }
+}
+
+func Test_EcsRenderers(t *testing.T) {
+  world := NewWorld()
+  drawCount := 0
+
+  renderer :=  func(world *World, adder int) {
+    drawCount += adder
+  }
+   
+  world.RegisterRenderer(renderer)
+
+  world.Draw(2)
+
+  if drawCount != 2 {
+    t.Errorf("Expected %v, Got %v", 2, drawCount)
+  }
+
+  world.Draw(3)
+  world.Draw(5)
+  if drawCount != 10 {
+    t.Errorf("Expected %v, Got %v", 3, drawCount)
+  }
+}
 
 func Test_ComponentType(t *testing.T) {
   // The component store does NOT preserve the order of the data.

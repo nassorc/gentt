@@ -12,6 +12,7 @@ const WORLD_SIZE = 10000
 const BITSET_SIZE = 8
 
 type EntityId = int
+
 type IComponentType interface {
 	RType() reflect.Type
 	Zero() interface{}
@@ -19,6 +20,7 @@ type IComponentType interface {
 
 type World struct {
 	stores               []*Store
+  // Maps a component to its actual index in the stores array 
 	componentTypeToStore map[reflect.Type]int
 	entityPool           *ringbuffer.Ringbuffer[EntityId]
 
@@ -27,6 +29,7 @@ type World struct {
 	// 0 = not valid, reset when destroying entity
 	entitySignatures []bitset.Bitset
   systems   []func(*World) 
+  renderers   []any
 }
 
 func NewWorld() *World {
@@ -53,9 +56,20 @@ func (w *World) RegisterSystem(system func(*World)) {
   w.systems = append(w.systems, system)
 }
 
+func (w *World) RegisterRenderer(renderer any) {
+  w.renderers = append(w.renderers, renderer)
+}
+
 func (w *World) Tick() {
   for _, system := range w.systems {
     system(w)
+  }
+}
+
+func (w *World) Draw(arg any) {
+  for _, renderer := range w.renderers {
+    val := reflect.ValueOf(renderer)
+    val.Call([]reflect.Value{ reflect.ValueOf(w), reflect.ValueOf(arg) })
   }
 }
 
@@ -90,7 +104,6 @@ func (w *World) SetData(entity EntityId, component interface{}) {
 
 	if !w.HasStore(t) {
 		// create store
-    fmt.Println("NO STORE, CREATING")
 		idx := len(w.stores)
 		w.stores = append(w.stores, NewStore(t))
 		w.componentTypeToStore[t] = idx
@@ -107,16 +120,17 @@ func (w *World) Create(components ...IComponentType) EntityId {
 	for _, component := range components {
 		t := component.RType()
 
+    // create store if store of the given type doesn't exist
 		if !w.HasStore(t) {
-      // fmt.Println("NO STORE")
-			// create store
-			idx := len(w.stores)
+			id := len(w.stores)
 			w.stores = append(w.stores, NewStore(component.RType()))
-			w.componentTypeToStore[t] = idx
+			w.componentTypeToStore[t] = id
 		}
 
+    // insert data to store
 		storeIdx := w.componentTypeToStore[t]
-		w.stores[w.componentTypeToStore[t]].Insert(id, reflect.ValueOf(component.Zero()))
+    store := w.stores[w.componentTypeToStore[t]]
+		store.Insert(id, reflect.ValueOf(component.Zero()))
 		w.entitySignatures[id].Set(storeIdx)
 	}
 
