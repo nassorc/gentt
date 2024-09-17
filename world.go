@@ -1,16 +1,17 @@
-package ecs
+package gentt
 
 import (
 	"fmt"
 	"reflect"
 
-	"github.com/nassorc/go-codebase/src/bitset"
-	"github.com/nassorc/go-codebase/src/ringbuffer"
+	"github.com/nassorc/go-codebase/lib/bitset"
+	"github.com/nassorc/go-codebase/lib/ringbuffer"
 )
 
 const WORLD_SIZE = 10000
 const BITSET_SIZE = 8
 
+type EntityId = int
 type IComponentType interface {
 	RType() reflect.Type
 	Zero() interface{}
