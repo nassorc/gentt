@@ -174,13 +174,12 @@ func (w *World) HasStore(t reflect.Type) bool {
 	return ok && idx < len(w.stores)
 }
 
-func (w *World) Query(components ...IComponentType) []EntityId {
+func (w *World) Query(components ...IComponentType) QueryResult {
 	result := make([]EntityId, 0)
 	qSig := bitset.NewBitset(BITSET_SIZE)
 
-	// points to store with the least amount of entities
+	// store with the least amount of entities
 	var minStore *Store
-	// var minSize = WORLD_SIZE + 1
 
 	for _, component := range components {
 		t := component.RType()
@@ -204,5 +203,7 @@ func (w *World) Query(components ...IComponentType) []EntityId {
 		}
 	}
 
-	return result
+  return QueryResult{
+    Result: result,
+  }
 }
