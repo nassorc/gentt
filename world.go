@@ -8,8 +8,11 @@ import (
 	"github.com/nassorc/go-codebase/lib/ringbuffer"
 )
 
-const WORLD_SIZE = 10000
-const BITSET_SIZE = 8
+const (
+  // Max number of entities
+  WORLD_SIZE = 10000 
+  BITSET_SIZE = 8
+)
 
 type EntityId = int
 
@@ -48,7 +51,7 @@ func NewWorld() *World {
 	}
 }
 
-func (w World) IsValid(entity EntityId) bool {
+func (w World) Valid(entity EntityId) bool {
 	return w.entitySignatures[entity].Test(BITSET_SIZE - 1)
 }
 

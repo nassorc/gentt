@@ -17,7 +17,7 @@ func CreateComponent[T any]() ComponentType[T] {
 }
 
 func (c ComponentType[T]) Add(world *World, entity EntityId, val T) {
-	world.SetData(entity, val)
+  world.SetData(entity, val)
 }
 
 func (c ComponentType[T]) All(world *World) []EntityId {

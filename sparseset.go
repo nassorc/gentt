@@ -6,8 +6,7 @@ import (
 )
 
 const (
-	PAGE_SIZE = 10
-	MAX_PAGES = 1000
+	PAGE_SIZE = 3
 )
 
 type Page [PAGE_SIZE]int
@@ -41,7 +40,7 @@ func (s *Store) SetSparseIdx(id EntityId, idx int) {
 		s.Sparse = slices.Grow(s.Sparse, page+1)
 
     for idx := len(s.Sparse); idx <= page; idx++ {
-      s.Sparse = append(s.Sparse, new(Page))
+      s.Sparse = append(s.Sparse, nil)
     }
 	}
 
