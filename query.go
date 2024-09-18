@@ -2,7 +2,6 @@ package gentt
 
 type QueryResult struct {
   Result []EntityId
-  world *World
 }
 
 func (res QueryResult) Each(f func(EntityId)) {
