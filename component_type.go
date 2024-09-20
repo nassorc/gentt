@@ -81,11 +81,16 @@ func (c ComponentType[T]) First(world *World) (EntityId, bool) {
   return 0, false
 }
 
-func (c ComponentType[T]) Get(world *World, entity EntityId) *T {
+func (c ComponentType[T]) Get(world *World, entity EntityId) (*T, bool) {
 	store := world.stores[world.componentTypeToStore[c.rType]]
+
+  if !store.Has(entity) {
+    return nil, false
+  }
+
 	data, _ := store.Get(entity)
 
-	return data.Addr().Interface().(*T)
+	return data.Addr().Interface().(*T), true
 }
 
 func (c ComponentType[T]) Remove(world *World, entity EntityId) {
