@@ -91,10 +91,6 @@ func (s *Store) Get(id EntityId) (reflect.Value, bool) {
 }
 
 func (s *Store) Insert(id EntityId, value reflect.Value) {
-	// if (s.Size() + 1) >= s.capacity {
-	// 	panic("Full component store.")
-	// }
-
 	if s.Has(id) {
 		idx, _ := s.GetDataIdx(id)
 		s.Dense.Index(idx).Set(value)
@@ -105,7 +101,12 @@ func (s *Store) Insert(id EntityId, value reflect.Value) {
 		s.SetSparseIdx(id, idx)
 
 		s.Dense = reflect.Append(s.Dense, value)
-		s.ReverseLookup = append(s.ReverseLookup, id)
+
+    if idx >= len(s.ReverseLookup) {
+      s.ReverseLookup = append(s.ReverseLookup, id)
+    } else {
+      s.ReverseLookup[idx] = id
+    }
 
 		s.size += 1
 	}
